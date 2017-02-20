@@ -1,0 +1,63 @@
+version: '2'
+
+services:
+    php:
+        container_name: glados_php
+        build: docker/php
+        volumes:
+            - .:/var/www
+        ports:
+            - "80:80"
+        extra_hosts:
+            - "localhost glados.local:127.0.0.1"
+        networks:
+            - back
+
+    mysql:
+        container_name: glados_mysql
+        image: mysql:latest
+        environment:
+            - MYSQL_ROOT_PASSWORD=root
+            - MYSQL_USER=glados
+            - MYSQL_PASSWORD=glados
+            - MYSQL_DATABASE=glados
+        expose:
+            - 3306
+        ports:
+            - 3310:3306
+        networks:
+            back:
+                aliases:
+                    - mysql
+        volumes:
+            - mysql-data:/var/lib/mysql
+
+    pg:
+        container_name: glados_pg
+        image: postgres:9.5
+        environment:
+            - PGDATA=/var/lib/postgresql/data/pgdata
+            - TCP_PORTS=5432
+            - POSTGRES_USER=glados
+            - POSTGRES_PASSWORD=glados
+            - POSTGRES_DB=glados
+        networks:
+            back:
+                aliases:
+                    - pg
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: galdos_phpmyadmin
+        ports:
+            - 8080:80
+        networks:
+            back:
+        environment:
+            - PMA_HOST=mysql
+
+volumes:
+    mysql-data:
+
+networks:
+    back:
